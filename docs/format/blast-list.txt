@@ -1,0 +1,32 @@
+# blast-list - a tab-separated lists
+#
+# Updated: 2013.1.24
+
+col_index   title
+0           aln_rank
+1           aln_hspno
+2           aln_method
+3           query_name
+4           hit_name
+5           query_length
+6           query_hsp_start
+7           query_hsp_end
+8           query_strand
+9           query_frame
+10          hit_length
+11          hit_hsp_start
+12          hit_hsp_end
+13          hit_strand
+14          hit_frame
+15          hsp_score
+16          hsp_bits
+17          hsp_evalue
+18          hsp_length
+19          hsp_gaps
+20          hsp_identities
+21          hsp_identity_percent
+22          hsp_positives
+23          hsp_positive_percent
+24          query_coverage
+25          hit_coverage
+26          hit_description

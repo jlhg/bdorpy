@@ -4,71 +4,85 @@
 #
 # Copyright (C) 2013, Jian-Long Huang
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
-# Version: 0.1
+# Version: 0.2
 # Created: 2013.1.22
 #
 # Required :
 # * Biopython: http://biopython.org
 #
-# Usage: blastparser <blast.xml> [<output>] [options]
+# Usage: blastparser <blast.xml> [options]
 #
 # Options:
-# -e NUM: evalue thresh (default: 0.01)
-# -r NUM: alignment rank (default: 250)
+# -e, --evalue NUM: evalue thresh (default: 0.01)
+# -r, --rank   NUM: alignment rank (default: 250)
+# -o, --output STR: output file name. If this option is not specified, the script will generate
+#                   one with unique identifier at current directory.
 #
-# Output format:
-# col #  title
-# 0      aln_rank
-# 1      aln_hspno
-# 2      aln_method
-# 3      query_name
-# 4      hit_name
-# 5      query_length
-# 6      query_hsp_start
-# 7      query_hsp_end
-# 8      query_strand
-# 9      query_frame
-# 10     hit_length
-# 11     hit_hsp_start
-# 12     hit_hsp_end
-# 13     hit_strand
-# 14     hit_frame
-# 15     hsp_score
-# 16     hsp_bits
-# 17     hsp_evalue
-# 18     hsp_length
-# 19     hsp_gaps
-# 20     hsp_identities
-# 21     hsp_identity_percent
-# 22     hsp_positives
-# 23     hsp_positive_percent
-# 24     query_coverage
-# 25     hit_coverage
-# 26     hit_description
+# File formats:
+# * blast.xml: blast XML
+# * output: blast-list
 
 from __future__ import division
+import sys
 import argparse
 from Bio.Blast import NCBIXML
-from fhandle import name
+from fhandle import name, logmsg
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('file_blast')
-    parser.add_argument('file_output', nargs='?', default='bp_output_' + name.genid() + '.tsv')
-    parser.add_argument('-e', dest='ev_thresh', type=float, default=0.01)
-    parser.add_argument('-r', dest='aln_rank', type=int, default=250)
+    proglog = logmsg.message(prog='blastparser', cmd=' '.join(sys.argv))
+
+    parser = argparse.ArgumentParser(description='blastparser - Parse the blast output file')
+    parser.add_argument('intput_file')
+    parser.add_argument('-e', '--evalue', dest='ev_thresh', type=float, default=0.01,
+                        help='evalue thresh (default: 0.01)')
+    parser.add_argument('-r', '--rank', dest='aln_rank', type=int, default=250,
+                        help='alignment rank (default: 250)')
+    parser.add_argument('-o', '--output', dest='output_file', default='bp_output_' + name.genid() + '.tsv',
+                        help='output file name. If this option is not specified, the script will generate '
+                        'one with unique identifier at current directory.')
     args = parser.parse_args()
 
-    with open(args.file_blast, 'r') as result_handle, open(args.file_output, 'w') as fw:
-        blast_records = NCBIXML.parse(result_handle)
-        fw.write('aln_rank\t' + 'aln_hspno\t' + 'aln_method\t' + 'query_name\t' +
-                 'hit_name\t' + 'query_length\t' + 'query_hsp_start\t' + 'query_hsp_end\t' +
-                 'query_strand\t' + 'query_frame\t' + 'hit_length\t' + 'hit_hsp_start\t' +
-                 'hit_hsp_end\t' + 'hit_strand\t' + 'hit_frame\t' + 'hsp_score\t' +
-                 'hsp_bits\t' + 'hsp_evalue\t' + 'hsp_length\t' + 'hsp_gaps\t' +
-                 'hsp_identities\t' + 'hsp_identity_percent\t' + 'hsp_positives\t' + 'hsp_positive_percent\t' +
-                 'query_coverage\t' + 'hit_coverage\t' + 'hit_description\n')
+    with open(args.intput_file, 'r') as result_handle, open(args.output_file, 'w') as fw:
+        for i in proglog.start_message():
+            fw.write(i)
+
+        fw.write('#\n')
+
+        header = ('aln_rank',
+                  'aln_hspno',
+                  'aln_method',
+                  'query_name',
+                  'hit_name',
+                  'query_length',
+                  'query_hsp_start',
+                  'query_hsp_end',
+                  'query_strand',
+                  'query_frame',
+                  'hit_length',
+                  'hit_hsp_start',
+                  'hit_hsp_end',
+                  'hit_strand',
+                  'hit_frame',
+                  'hsp_score',
+                  'hsp_bits',
+                  'hsp_evaleu',
+                  'hsp_length',
+                  'hsp_gaps',
+                  'hsp_identities',
+                  'hsp_identity_percent',
+                  'hsp_positives',
+                  'hsp_positive_percent',
+                  'query_coverage',
+                  'hit_coverage',
+                  'hit_description')
+
+        fw.write('# ' + '    '.join(header) + '\n\n')
         fw.flush()
+
+        blast_records = NCBIXML.parse(result_handle)
+        query_set = set()
+        hit_set = set()
+        hsp_num = 0
 
         for blast_record in blast_records:
             aln_rank = 0
@@ -79,6 +93,10 @@ if __name__ == '__main__':
                     for hsp in alignment.hsps:
                         aln_hspno += 1
                         if hsp.expect <= args.ev_thresh:
+                            hsp_num += 1
+                            query_set.add(blast_record.query)
+                            hit_set.add(alignment.title)
+
                             fw.write(str(aln_rank) + '\t')
                             fw.write(str(aln_hspno) + '\t')
                             fw.write(blast_record.application + '\t')
@@ -113,3 +131,12 @@ if __name__ == '__main__':
                             fw.write(str(round((hsp.sbjct_end - hsp.sbjct_start + 1) / alignment.length * 100, 2)) + '\t')
                             fw.write(alignment.title + '\n')
                             fw.flush()
+
+        fw.write('\n')
+        fw.write('# Parsed queries: ' + str(len(query_set)) + '\n')
+        fw.write('# Non-redundant hits: ' + str(len(hit_set)) + '\n')
+        fw.write('# Parsed HSPs: ' + str(hsp_num) + '\n')
+        fw.write('#\n')
+
+        for i in proglog.end_message():
+            fw.write(i)

@@ -1,0 +1,7 @@
+# blast-accmap - a tab-separated lists
+#
+# Updated: 2013.1.25
+
+col_index    title
+0            query_accession
+1            hit_accession_1,hit_accession_2, ...

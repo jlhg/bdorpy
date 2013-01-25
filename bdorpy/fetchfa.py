@@ -10,46 +10,92 @@
 # Required:
 # * Biopython: http://biopython.org
 #
-# Usage: batchgfa <term.list> [options]
+# Usage: batchgfa <input.tsv> [options]
 # -d, --db     STR: database (default: protein)
-# -q, --query  STR: accessions. If this option is specifid, the script will use the values
-#                   to fetch data, and no input file required to be handled.
-#                   Support multiple accession. (comma-separated)
-# -o, --output STR: output directory or file (defualt: fetchfa_xxx) xxx: Random strings
+# -q, --query  STR: accessions to be fetched. If this option is specifid, the script will use the values
+#                   to fetch data, and no input file is required to be handled.
+#                   Support multiple accession. (comma-separated).
+# -o, --output STR: output directory or file name. If this option is not specified, the script will generate
+#                   one with unique identifier at current directory.
+# -l, --log    STR: log file name
 #
-# Input format (tab-separated):
-# col #    title
-# 0        filename
-# 1        accession_1,accession_2, ...
+# File formats:
+# * input.tsv: blast-accmap
+# * output: fasta
 
 import os
+import sys
 import argparse
 from Bio import Entrez
-from fhandle import name
+from fhandle import name, logmsg
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('file_list', nargs='?')
-    parser.add_argument('-d', '--db', dest='ent_database', default='protein')
-    parser.add_argument('-q', '--query', dest='query_id')
-    parser.add_argument('-o', '--output', dest='file_output', default='fetchfa_out_' + name.genid())
+    proglog = logmsg.message(prog='fetchfa', cmd=' '.join(sys.argv))
+
+    parser = argparse.ArgumentParser(description='fetchfa - Fetch fasta files from Entrez')
+    parser.add_argument('input_file', nargs='?')
+    parser.add_argument('-d', '--db', dest='database', default='protein',
+                        help='database (default: protein)')
+    parser.add_argument('-q', '--query', dest='query_id',
+                        help='accessions to be fetched. If this option is specifid, the script will use the values '
+                        'to fetch data, and no input file is required to be handled.')
+    parser.add_argument('-o', '--output', dest='output', default='fetchfa_out_' + name.genid(),
+                        help='output directory or file name. If this option is not specified, the script will generate '
+                        'one with unique identifier at current directory.')
+    parser.add_argument('-l', '--log', dest='log_file',
+                        help='log file name')
     args = parser.parse_args()
 
-    if args.query_id is not None:
-        handle = Entrez.efetch(db=args.database, id=args.query_id, rettype='fasta', retmode='text')
+    if args.log_file is None:
+        fwlog = open(args.output + '.log', 'w')
+    else:
+        fwlog = open(args.log_file, 'w')
 
-        with open(args.file_output, 'w') as fw:
+    for i in proglog.start_message():
+        fwlog.write(i)
+    fwlog.flush()
+
+    Entrez.email = 'fetchfa@example.com'
+
+    if args.query_id is not None:
+        with open(args.output + '.fa', 'w') as fw, open(args.output + '.log', 'w') as fwlog:
+            handle = Entrez.efetch(db=args.database,
+                                   id=args.query_id,
+                                   rettype='fasta',
+                                   retmode='text')
+
             fw.write(handle.read())
             fw.flush()
-    else:
-        if not os.path.exists(args.file_output):
-            os.makedirs(args.file_output)
 
-        with open(args.file_list, 'r') as fin:
+            fwlog.write('# Fetched sequences: ' + str(len(args.query_id.split(','))) + '\n')
+            fwlog.write('#\n')
+
+            for i in proglog.end_message():
+                fwlog.write(i)
+            fwlog.flush()
+    else:
+        if not os.path.exists(args.output):
+            os.makedirs(args.output)
+
+        with open(args.input_file, 'r') as fin:
+            query_num = 0
             for line in fin:
-                if line[0] == '#':
+                if line.lstrip(' ')[0] in ('#', '\n'):
                     continue
-                with open(os.path.abspath(args.file_output) + '/' + line.split('\t')[0], 'w') as fw:
-                    handle = Entrez.efetch(db=args.database, id=line.split('\t')[1].rstrip(),
-                                           rettype='fasta', retmode='text')
+
+                query_num += 1
+
+                with open(os.path.abspath(args.output) + '/' + line.split('\t')[0] + '.fa', 'w') as fw:
+                    handle = Entrez.efetch(db=args.database,
+                                           id=line.split('\t')[0] + ',' + line.split('\t')[1].rstrip(),
+                                           rettype='fasta',
+                                           retmode='text')
                     fw.write(handle.read())
+            fwlog.write('# Fetched queries: ' + str(query_num) + '\n')
+            fwlog.write('#\n')
+
+            for i in proglog.end_message():
+                fwlog.write(i)
+            fwlog.flush()
+
+    fwlog.close()
