@@ -4,7 +4,7 @@
 #
 # Copyright (C) 2013, Jian-Long Huang
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
-# Version: 0.2
+# Version: 1.0
 # Created: 2013.1.22
 #
 # Required :
@@ -17,6 +17,15 @@
 # -r, --rank   NUM: alignment rank (default: 250)
 # -o, --output STR: output file name. If this option is not specified, the script will generate
 #                   one with unique identifier at current directory.
+# -b, --best      : filter results with best selection. If this option is specified, the script
+#                   will select one best hsp for each query with the following criteria. The -r,
+#                   --rank option will be useless. (default: false)
+#
+#                   Criteria: (order by number)
+#                    1. Lowest E-value
+#                    2. Highest Identity percent
+#                    3. Highest Hsp length
+#                    4. The first hit
 #
 # File formats:
 # * blast.xml: NCBI blast XML
@@ -45,7 +54,19 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--output', dest='output_file', default='bp_output_' + name.genid() + '.tsv',
                         help='output file name. If this option is not specified, the script will generate '
                         'one with unique identifier at current directory.')
+    parser.add_argument('-b', '--best', dest='best_hit', action='store_true', default=False,
+                        help='filter results with best selection. If this option is specified, the script '
+                        'will select one best hsp for each query with the following criteria. The -r, '
+                        '--rank option will be useless. (default: false) '
+                        'Criteria: (order by number) '
+                        ' 1. Lowest E-value '
+                        ' 2. Highest Identity percent'
+                        ' 3. Highest Hsp length'
+                        ' 4. The first hit')
     args = parser.parse_args()
+
+    if args.best_hit is True:
+        args.aln_rank = 1
 
     with open(args.intput_file, 'r') as result_handle, open(args.output_file, 'w') as fw:
         for i in proglog.start_message():
@@ -91,9 +112,29 @@ if __name__ == '__main__':
 
         for blast_record in blast_records:
             aln_rank = 0
-            for alignment in blast_record.alignments:
+
+            if len(blast_record.alignments) == 0:
+                continue
+
+            alignments = blast_record.alignments
+
+            if args.best_hit is True:
+                hspmap = {}
+                hsps = []
+
+                for alignment in alignments:
+                    for hsp in alignment.hsps:
+                        hspmap.update({hsp: alignment})
+                        hsps.append(hsp)
+
+                hsps.sort(key=lambda s: (s.expect, -round(s.identities / s.align_length * 100, 2), -s.align_length))
+                hspmap[hsps[0]].hsps = [hsps[0]]
+                alignments = [hspmap[hsps[0]]]
+
+            for alignment in alignments:
                 aln_hspno = 0
                 aln_rank += 1
+
                 if aln_rank <= args.aln_rank:
                     for hsp in alignment.hsps:
                         aln_hspno += 1
