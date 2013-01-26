@@ -127,7 +127,7 @@ if __name__ == '__main__':
                         hspmap.update({hsp: alignment})
                         hsps.append(hsp)
 
-                hsps.sort(key=lambda s: (s.expect, -round(s.identities / s.align_length * 100, 2), -s.align_length))
+                hsps.sort(key=lambda s: (s.expect, -(s.identities / s.align_length), -s.align_length))
                 hspmap[hsps[0]].hsps = [hsps[0]]
                 alignments = [hspmap[hsps[0]]]
 
