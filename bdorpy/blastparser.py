@@ -19,8 +19,13 @@
 #                   one with unique identifier at current directory.
 #
 # File formats:
-# * blast.xml: blast XML
+# * blast.xml: NCBI blast XML
 # * output: blast-list
+#
+# Tested:
+# * BLASTN 2.2.27+
+# * BLASTX 2.2.27+
+# * BLASTP 2.2.27+
 
 from __future__ import division
 import sys
@@ -65,7 +70,7 @@ if __name__ == '__main__':
                   'hit_frame',
                   'hsp_score',
                   'hsp_bits',
-                  'hsp_evaleu',
+                  'hsp_evalue',
                   'hsp_length',
                   'hsp_gaps',
                   'hsp_identities',
@@ -105,19 +110,33 @@ if __name__ == '__main__':
                             fw.write(str(blast_record.query_length) + '\t')
                             fw.write(str(hsp.query_start) + '\t')
                             fw.write(str(hsp.query_end) + '\t')
-                            if hsp.strand[0] is None:
-                                fw.write('NA\t')
+
+                            if blast_record.application in ('BLASTN'):
+                                """Fix the missed value in XML output generated with BLASTN 2.2.27+"""
+                                fw.write(str(hsp.frame[0]) + '\t')  # The strand
+                                fw.write('NA\t')                    # The frame should be NA
                             else:
-                                fw.write(str(hsp.strand[0]) + '\t')
-                            fw.write(str(str(hsp.frame[0]) + '\t'))
+                                if hsp.strand[0] is None:
+                                    fw.write('NA\t')
+                                else:
+                                    fw.write(str(hsp.strand[0]) + '\t')
+                                fw.write(str(str(hsp.frame[0]) + '\t'))
+
                             fw.write(str(alignment.length) + '\t')
                             fw.write(str(hsp.sbjct_start) + '\t')
                             fw.write(str(hsp.sbjct_end) + '\t')
-                            if hsp.strand[1] is None:
-                                fw.write('NA\t')
+
+                            if blast_record.application in ('BLASTN'):
+                                """Fix the missed value in XML output generated with BLASTN 2.2.27+"""
+                                fw.write(str(hsp.frame[1]) + '\t')  # The strand
+                                fw.write('NA\t')                    # The frame should be NA
                             else:
-                                fw.write(str(hsp.strand[1] + '\t'))
-                            fw.write(str(str(hsp.frame[1])) + '\t')
+                                if hsp.strand[1] is None:
+                                    fw.write('NA\t')
+                                else:
+                                    fw.write(str(hsp.strand[1] + '\t'))
+                                fw.write(str(str(hsp.frame[1])) + '\t')
+
                             fw.write(str(hsp.score) + '\t')
                             fw.write(str(hsp.bits) + '\t')
                             fw.write(str(hsp.expect) + '\t')
@@ -127,8 +146,8 @@ if __name__ == '__main__':
                             fw.write(str(round(hsp.identities / hsp.align_length * 100, 2)) + '\t')
                             fw.write(str(hsp.positives) + '\t')
                             fw.write(str(round(hsp.positives / hsp.align_length * 100, 2)) + '\t')
-                            fw.write(str(round((hsp.query_end - hsp.query_start + 1) / blast_record.query_length * 100, 2)) + '\t')
-                            fw.write(str(round((hsp.sbjct_end - hsp.sbjct_start + 1) / alignment.length * 100, 2)) + '\t')
+                            fw.write(str(round((abs(hsp.query_end - hsp.query_start) + 1) / blast_record.query_length * 100, 2)) + '\t')
+                            fw.write(str(round((abs(hsp.sbjct_end - hsp.sbjct_start) + 1) / alignment.length * 100, 2)) + '\t')
                             fw.write(alignment.title + '\n')
                             fw.flush()
 
