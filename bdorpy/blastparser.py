@@ -4,7 +4,7 @@
 #
 # Copyright (C) 2013, Jian-Long Huang
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
-# Version: 1.0
+# Version: 2.0
 # Created: 2013.1.22
 #
 # Required :
@@ -26,6 +26,8 @@
 #                    2. Highest Identity percent
 #                    3. Highest Hsp length
 #                    4. The first hit
+#
+# -t, --title     : print header (default: false)
 #
 # File formats:
 # * blast.xml: NCBI blast XML
@@ -63,6 +65,8 @@ if __name__ == '__main__':
                         ' 2. Highest Identity percent'
                         ' 3. Highest Hsp length'
                         ' 4. The first hit')
+    parser.add_argument('-t', '--title', dest='title', action='store_true', default=False,
+                        help='print header (default: false)')
     args = parser.parse_args()
 
     if args.best_hit is True:
@@ -71,8 +75,6 @@ if __name__ == '__main__':
     with open(args.intput_file, 'r') as result_handle, open(args.output_file, 'w') as fw:
         for i in proglog.start_message():
             fw.write(i)
-
-        fw.write('#\n')
 
         header = ('aln_rank',
                   'aln_hspno',
@@ -102,7 +104,13 @@ if __name__ == '__main__':
                   'hit_coverage',
                   'hit_description')
 
-        fw.write('# ' + '    '.join(header) + '\n\n')
+        if args.title is True:
+            fw.write('\n')
+            fw.write('\t'.join(header) + '\n')
+        else:
+            fw.write('#\n')
+            fw.write('# ' + '    '.join(header) + '\n\n')
+
         fw.flush()
 
         blast_records = NCBIXML.parse(result_handle)
