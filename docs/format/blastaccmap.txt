@@ -1,4 +1,4 @@
-# blast-accmap - a tab-separated lists
+# blastaccmap - a tab-separated lists
 #
 # Updated: 2013.1.25
 

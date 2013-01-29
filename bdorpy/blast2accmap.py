@@ -7,7 +7,7 @@
 # http://opensource.org/licenses/MIT
 #
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
-# Version: 0.1
+# Version: 0.2
 # Created: 2013.1.25
 #
 # Required:
@@ -23,7 +23,7 @@
 #
 # File Formats:
 # * blast.xml: blast XML
-# * output: blast-accmap
+# * output: blastaccmap
 
 import sys
 import argparse
@@ -40,10 +40,13 @@ def main():
                         help='evalue thresh (default: 0.01)')
     parser.add_argument('-t', '--min_hit_num', dest='min_hit_num', type=int, default=1,
                         help='minimum number of hit sequences (default: 1)')
-    parser.add_argument('-o', '--output', dest='output_file', default='blast2accmap_output_' + name.genid() + '.tsv',
+    parser.add_argument('-o', '--output', dest='output_file',
                         help='output file name. If this option is not specified, the script will generate '
                         'one with unique identifier at current directory.')
     args = parser.parse_args()
+
+    if args.output_file is None:
+        args.output_file = args.input_file + '_out_' + name.genid() + 'blastaccmap'
 
     total_query_num = 0
     parsed_query_num = 0

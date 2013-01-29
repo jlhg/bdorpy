@@ -1,4 +1,4 @@
-# blast-list - a tab-separated lists
+# blastlist - a tab-separated lists
 #
 # Updated: 2013.1.24
 

@@ -7,13 +7,13 @@
 # http://opensource.org/licenses/MIT
 #
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
-# Version: 0.2
+# Version: 0.3
 # Created: 2013.1.24
 #
 # Required:
 # * Biopython: http://biopython.org
 #
-# Usage: batchgfa <input.tsv> [options]
+# Usage: batchgfa <input.blastaccmap> [options]
 # -d, --db     STR: database (default: protein)
 # -q, --query  STR: accessions to be fetched. If this option is specifid, the script will use the values
 #                   to fetch data, and no input file is required to be handled.
@@ -23,7 +23,7 @@
 # -l, --log    STR: log file name
 #
 # File formats:
-# * input.tsv: blast-accmap
+# * input.blastaccmap: blastaccmap
 # * output: fasta
 
 import os

@@ -7,7 +7,7 @@
 # http://opensource.org/licenses/MIT
 #
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
-# Version: 0.1
+# Version: 0.2
 # Created: 2013.1.26
 #
 # Required:
@@ -33,10 +33,13 @@ def main():
     parser.add_argument('input_file')
     parser.add_argument('-s', '--sep', dest='sep', default='\n',
                         help='seperator (default: newline)')
-    parser.add_argument('-o', '--output', dest='output_file', default='fa2lens_output_' + name.genid() + '.txt',
+    parser.add_argument('-o', '--output', dest='output_file',
                         help='output file name. If this option is not specified, the script will generate '
                         'one with unique identifier at current directory.')
     args = parser.parse_args()
+
+    if args.output_file is None:
+        args.output_file = args.input_file + '_out_' + name.genid() + '.leng.txt'
 
     with open(args.input_file, 'r') as fin, open(args.output_file, 'w') as fw:
         records = map(str, map(len, list(SeqIO.parse(fin, 'fasta'))))

@@ -7,7 +7,7 @@
 # http://opensource.org/licenses/MIT
 #
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
-# Version: 2.0
+# Version: 2.1
 # Created: 2013.1.22
 #
 # Required :
@@ -34,7 +34,7 @@
 #
 # File formats:
 # * blast.xml: NCBI blast XML
-# * output: blast-list
+# * output: blastlist
 #
 # Tested:
 # * BLASTN 2.2.27+
@@ -57,7 +57,7 @@ def main():
                         help='evalue thresh (default: 0.01)')
     parser.add_argument('-r', '--rank', dest='aln_rank', type=int, default=250,
                         help='alignment rank (default: 250)')
-    parser.add_argument('-o', '--output', dest='output_file', default='bp_output_' + name.genid() + '.tsv',
+    parser.add_argument('-o', '--output', dest='output_file',
                         help='output file name. If this option is not specified, the script will generate '
                         'one with unique identifier at current directory.')
     parser.add_argument('-b', '--best', dest='best_hit', action='store_true', default=False,
@@ -75,6 +75,9 @@ def main():
 
     if args.best_hit is True:
         args.aln_rank = 1
+
+    if args.output_file is None:
+        args.output_file = args.input_file + '_out_' + name.genid() + '.blastlist'
 
     with open(args.intput_file, 'r') as result_handle, open(args.output_file, 'w') as fw:
         for i in proglog.start_message():

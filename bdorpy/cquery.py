@@ -7,16 +7,16 @@
 # http://opensource.org/licenses/MIT
 #
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
-# Version: 1.0
+# Version: 1.1
 # Created: 2013.1.23
 #
-# Usage: cquery <input.tsv>
+# Usage: cquery <input.blastlist>
 #
 # Options:
 # -e, --evalue NUM: evalue thresh (default: 0.01)
 #
 # File formats:
-# * input.tsv: blast-list
+# * input.blastlist: blastlist
 #
 # Support multiple input files and Unix style pathname pattern.
 #
