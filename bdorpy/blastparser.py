@@ -7,7 +7,7 @@
 # http://opensource.org/licenses/MIT
 #
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
-# Version: 2.2
+# Version: 2.3
 # Created: 2013.1.22
 #
 # Required :
@@ -52,7 +52,7 @@ def main():
     proglog = logmsg.message(prog='blastparser', cmd=' '.join(sys.argv))
 
     parser = argparse.ArgumentParser(description='blastparser - Parse the blast output file')
-    parser.add_argument('intput_file')
+    parser.add_argument('input_file')
     parser.add_argument('-e', '--evalue', dest='ev_thresh', type=float, default=0.01,
                         help='evalue thresh (default: 0.01)')
     parser.add_argument('-r', '--rank', dest='aln_rank', type=int, default=250,
@@ -79,7 +79,7 @@ def main():
     if args.output_file is None:
         args.output_file = args.input_file + '_out_' + name.genid() + '.blastlist'
 
-    with open(args.intput_file, 'r') as result_handle, open(args.output_file, 'w') as fw:
+    with open(args.input_file, 'r') as result_handle, open(args.output_file, 'w') as fw:
         for i in proglog.start_message():
             fw.write(i)
 

@@ -7,7 +7,7 @@
 # http://opensource.org/licenses/MIT
 #
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
-# Version: 0.3
+# Version: 0.4
 # Created: 2013.1.25
 #
 # Required:
@@ -24,6 +24,8 @@
 # File Formats:
 # * blast.xml: blast XML
 # * output: blastaccmap
+#
+# This script is written for the sake of making training data for WildSpan.
 
 import sys
 import argparse
@@ -74,17 +76,21 @@ def main():
 
             for alignment in blast_record.alignments:
                 for hsp in alignment.hsps:
+                    if alignment.accession in blast_record.query:
+                        """If query hit itself, ignore it. """
+                        continue
+
                     if hsp.expect <= args.ev_thresh:
                         hit_accs.append(alignment.accession)
                         break
 
             if len(hit_accs) >= args.min_hit_num:
                 parsed_query_num += 1
-                fw.write(blast_record.query + '\t')
+                fw.write(blast_record.query + '\t' + blast_record.query + ',')
                 fw.write(','.join(hit_accs) + '\n')
                 fw.flush()
 
-        fw.write('#\n')
+        fw.write('\n')
         fw.write('# Total queries: ' + str(total_query_num) + '\n')
         fw.write('# Parsed queries: ' + str(parsed_query_num) + '\n')
         fw.write('#\n')
