@@ -3,6 +3,9 @@
 # fetchfa - Fetch fasta files from Entrez
 #
 # Copyright (C) 2013, Jian-Long Huang
+# Licensed under The MIT License
+# http://opensource.org/licenses/MIT
+#
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
 # Version: 0.2
 # Created: 2013.1.24
@@ -29,7 +32,8 @@ import argparse
 from Bio import Entrez
 from fhandle import name, logmsg
 
-if __name__ == '__main__':
+
+def main():
     proglog = logmsg.message(prog='fetchfa', cmd=' '.join(sys.argv))
 
     parser = argparse.ArgumentParser(description='fetchfa - Fetch fasta files from Entrez')
@@ -99,3 +103,6 @@ if __name__ == '__main__':
             fwlog.flush()
 
     fwlog.close()
+
+if __name__ == '__main__':
+    main()

@@ -3,6 +3,9 @@
 # blastparser - Parse the blast output file
 #
 # Copyright (C) 2013, Jian-Long Huang
+# Licensed under The MIT License
+# http://opensource.org/licenses/MIT
+#
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
 # Version: 2.0
 # Created: 2013.1.22
@@ -44,7 +47,8 @@ import argparse
 from Bio.Blast import NCBIXML
 from fhandle import name, logmsg
 
-if __name__ == '__main__':
+
+def main():
     proglog = logmsg.message(prog='blastparser', cmd=' '.join(sys.argv))
 
     parser = argparse.ArgumentParser(description='blastparser - Parse the blast output file')
@@ -208,3 +212,6 @@ if __name__ == '__main__':
 
         for i in proglog.end_message():
             fw.write(i)
+
+if __name__ == '__main__':
+    main()

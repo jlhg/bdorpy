@@ -3,6 +3,9 @@
 # fa2lens - Extract length data from a fasta file
 #
 # Copyright (C) 2013, Jian-Long Huang
+# Licensed under The MIT License
+# http://opensource.org/licenses/MIT
+#
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
 # Version: 0.1
 # Created: 2013.1.26
@@ -24,7 +27,8 @@ import argparse
 from Bio import SeqIO
 from fhandle import name
 
-if __name__ == '__main__':
+
+def main():
     parser = argparse.ArgumentParser(description='fa2lens - Extract length data from a fasta file')
     parser.add_argument('input_file')
     parser.add_argument('-s', '--sep', dest='sep', default='\n',
@@ -38,3 +42,6 @@ if __name__ == '__main__':
         records = map(str, map(len, list(SeqIO.parse(fin, 'fasta'))))
         fw.write(args.sep.join(records))
         fw.flush()
+
+if __name__ == '__main__':
+    main()

@@ -3,6 +3,9 @@
 # config.py -- Loading config files
 #
 # Copyright (C) 2012-2013, Jian-Long Huang
+# Licensed under The MIT License
+# http://opensource.org/licenses/MIT
+#
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
 
 import configparser

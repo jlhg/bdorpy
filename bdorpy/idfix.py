@@ -3,15 +3,19 @@
 # idfix.py
 #
 # Copyright (C) 2013, Jian-Long Huang
+# Licensed under The MIT License
+# http://opensource.org/licenses/MIT
+#
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
-# Version: 0.1.0
+# Version: 0.1
 # Created: 2013.1.7
 #
 # Usage: idfix.py <idmap> <fasta> <output>
 
 import sys
 
-if __name__ == '__main__':
+
+def main():
     with open(sys.argv[1], 'r') as fin, open(sys.argv[2], 'r') as ffa, open(sys.argv[3], 'w') as fo:
         full_id = {}
 
@@ -26,3 +30,6 @@ if __name__ == '__main__':
                 fo.flush()
             else:
                 sys.exit('Id not found, stop!')
+
+if __name__ == '__main__':
+    main()

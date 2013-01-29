@@ -3,8 +3,11 @@
 # msaparser.py
 #
 # Copyright (C) 2012-2013, Jian-Long Huang
+# Licensed under The MIT License
+# http://opensource.org/licenses/MIT
+#
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
-# Version: 0.3.0
+# Version: 0.3
 
 import sys
 import os

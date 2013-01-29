@@ -3,6 +3,9 @@
 # blast2accmap - Extract names of query and hit sequences
 #
 # Copyright (C) 2013, Jian-Long Huang
+# Licensed under The MIT License
+# http://opensource.org/licenses/MIT
+#
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
 # Version: 0.1
 # Created: 2013.1.25
@@ -27,7 +30,8 @@ import argparse
 from Bio.Blast import NCBIXML
 from fhandle import name, logmsg
 
-if __name__ == '__main__':
+
+def main():
     proglog = logmsg.message(prog='blast2accmap', cmd=' '.join(sys.argv))
 
     parser = argparse.ArgumentParser(description='blast2accmap - Extract names of query and hit sequences')
@@ -84,3 +88,6 @@ if __name__ == '__main__':
             fw.write(i)
 
         fw.flush()
+
+if __name__ == '__main__':
+    main()

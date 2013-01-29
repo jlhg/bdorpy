@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 #
+# fa.py
+#
 # Copyright (C) 2013, Jian-Long Huang
+# Licensed under The MIT License
+# http://opensource.org/licenses/MIT
+#
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
 # Version: 0.1
 # Created: 2013.1.20

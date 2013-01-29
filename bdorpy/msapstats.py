@@ -3,6 +3,9 @@
 # msastats.py
 #
 # Copyright (C) 2013, Jian-Long Huang
+# Licensed under The MIT License
+# http://opensource.org/licenses/MIT
+#
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
 # Version: 0.3
 # Created: 2012.1.7
@@ -24,7 +27,8 @@
 import sys
 import os
 
-if __name__ == "__main__":
+
+def main():
     outdir = os.path.abspath(sys.argv[2])
 
     if (os.path.exists(outdir)):
@@ -208,3 +212,6 @@ if __name__ == "__main__":
     fidm_c_cr_s.close()
 
     sys.exit()
+
+if __name__ == "__main__":
+    main()

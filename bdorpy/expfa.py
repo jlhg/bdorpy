@@ -3,6 +3,9 @@
 # expfa - Extract sequences by ID
 #
 # Copyright (C) 2013, Jian-Long Huang
+# Licensed under The MIT License
+# http://opensource.org/licenses/MIT
+#
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
 # Version: 0.1
 # Created: 2013.1.20
@@ -17,7 +20,8 @@
 import argparse
 from fhandle import fa, lists
 
-if __name__ == '__main__':
+
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('file_fasta')
     parser.add_argument('file_id_list')
@@ -59,3 +63,6 @@ if __name__ == '__main__':
     print('# of sequence in fasta: %d' % (len(seqs)))
     print('# of sequence in list: %d' % (len(id_list)))
     print('Successfully extracted: %d' % (count))
+
+if __name__ == '__main__':
+    main()

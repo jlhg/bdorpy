@@ -3,6 +3,9 @@
 # cquery - Count the number of queries with its hit rank greater than some value
 #
 # Copyright (C) 2013, Jian-Long Huang
+# Licensed under The MIT License
+# http://opensource.org/licenses/MIT
+#
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
 # Version: 1.0
 # Created: 2013.1.23
@@ -23,7 +26,8 @@
 
 import argparse
 
-if __name__ == '__main__':
+
+def main():
     parser = argparse.ArgumentParser(description='Count the number of queries with its hit rank greater than some value')
     parser.add_argument('input_file', nargs='*')
     parser.add_argument('-e', '--evalue', dest='ev_thresh', type=float, default=0.01,
@@ -79,3 +83,6 @@ if __name__ == '__main__':
     print('Rank number >= 100: ' + str(count_100))
     print('Rank number >= 200: ' + str(count_200))
     print('Rank number >= 250: ' + str(count_250))
+
+if __name__ == '__main__':
+    main()
