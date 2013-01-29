@@ -7,7 +7,7 @@
 # http://opensource.org/licenses/MIT
 #
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
-# Version: 0.2
+# Version: 0.3
 # Created: 2013.1.25
 #
 # Required:
@@ -35,7 +35,7 @@ def main():
     proglog = logmsg.message(prog='blast2accmap', cmd=' '.join(sys.argv))
 
     parser = argparse.ArgumentParser(description='blast2accmap - Extract names of query and hit sequences')
-    parser.add_argument('intput_file')
+    parser.add_argument('input_file')
     parser.add_argument('-e', '--evalue', dest='ev_thresh', type=float, default=0.01,
                         help='evalue thresh (default: 0.01)')
     parser.add_argument('-t', '--min_hit_num', dest='min_hit_num', type=int, default=1,
@@ -58,7 +58,9 @@ def main():
             fw.write(i)
 
         fw.write('#\n')
-        fw.write('# Columns:\n')
+        fw.write('# E-value threshold: ' + str(args.ev_thresh) + '\n')
+        fw.write('# min hit number: ' + str(args.min_hit_num) + '\n')
+        fw.write('#\n')
         fw.write('# query_accession    hit_accession_1,hit_accession_2, ...\n\n')
         fw.flush()
 

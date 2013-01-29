@@ -7,7 +7,7 @@
 # http://opensource.org/licenses/MIT
 #
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
-# Version: 2.1
+# Version: 2.2
 # Created: 2013.1.22
 #
 # Required :
@@ -110,6 +110,10 @@ def main():
                   'query_coverage',
                   'hit_coverage',
                   'hit_description')
+
+        fw.write('#\n')
+        fw.write('# E-value threshold: ' + str(args.ev_thresh) + '\n')
+        fw.write('# Rank: ' + str(args.aln_rank) + '\n')
 
         if args.title is True:
             fw.write('\n')
