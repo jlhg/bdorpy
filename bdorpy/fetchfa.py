@@ -4,7 +4,7 @@
 #
 # Copyright (C) 2013, Jian-Long Huang
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
-# Version: 0.1
+# Version: 0.2
 # Created: 2013.1.24
 #
 # Required:
@@ -80,7 +80,7 @@ if __name__ == '__main__':
         with open(args.input_file, 'r') as fin:
             query_num = 0
             for line in fin:
-                if line.lstrip(' ')[0] in ('#', '\n'):
+                if line.lstrip() == '' or line.lstrip()[0] in ('#', 'a'):
                     continue
 
                 query_num += 1
