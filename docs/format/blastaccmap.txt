@@ -3,5 +3,5 @@
 # Updated: 2013.1.25
 
 col_index    title
-0            query_accession
-1            hit_accession_1,hit_accession_2, ...
+0            output file name to be created
+1            accession_1,accession_2, ...

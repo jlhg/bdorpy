@@ -7,7 +7,7 @@
 # http://opensource.org/licenses/MIT
 #
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
-# Version: 0.4
+# Version: 0.5
 # Created: 2013.1.25
 #
 # Required:
@@ -29,6 +29,7 @@
 
 import sys
 import argparse
+import re
 from Bio.Blast import NCBIXML
 from fhandle import name, logmsg
 
@@ -63,8 +64,10 @@ def main():
         fw.write('# E-value threshold: ' + str(args.ev_thresh) + '\n')
         fw.write('# min hit number: ' + str(args.min_hit_num) + '\n')
         fw.write('#\n')
-        fw.write('# query_accession    hit_accession_1,hit_accession_2, ...\n\n')
+        fw.write('# filename    query_accession,hit_accession_1,hit_accession_2, ...\n\n')
         fw.flush()
+
+        gi = re.compile('gi\|(\d+)\|')
 
         for blast_record in blast_records:
             total_query_num += 1
@@ -81,7 +84,13 @@ def main():
                         continue
 
                     if hsp.expect <= args.ev_thresh:
-                        hit_accs.append(alignment.accession)
+                        match = gi.match(alignment.hit_id).group(1)
+
+                        if match is None:
+                            print(alignment.accession + ' does not have gi.')
+                            hit_accs.append(alignment.accession)
+                        else:
+                            hit_accs.append(match)
                         break
 
             if len(hit_accs) >= args.min_hit_num:

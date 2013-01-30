@@ -7,7 +7,7 @@
 # http://opensource.org/licenses/MIT
 #
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
-# Version: 0.3
+# Version: 0.4
 # Created: 2013.1.24
 #
 # Required:
@@ -59,7 +59,7 @@ def main():
         fwlog.write(i)
     fwlog.flush()
 
-    Entrez.email = 'fetchfa@example.com'
+    Entrez.email = name.genid() + '@example.com'
 
     if args.query_id is not None:
         with open(args.output + '.fa', 'w') as fw, open(args.output + '.log', 'w') as fwlog:
@@ -90,11 +90,28 @@ def main():
                 query_num += 1
 
                 with open(os.path.abspath(args.output) + '/' + line.split('\t')[0] + '.fa', 'w') as fw:
+                    alist = line.rstrip().split('\t')[1].split(',')
+
+                    while len(alist) > 30:
+                        alist_part = alist[0:30]
+                        alist = alist[30:len(alist)]
+
+                        handle = Entrez.efetch(db=args.database,
+                                               id=','.join(alist_part),
+                                               rettype='fasta',
+                                               retmode='text')
+                        fw.write(handle.read())
+                        fw.flush()
+                        handle.close()
+
                     handle = Entrez.efetch(db=args.database,
-                                           id=line.split('\t')[0] + ',' + line.split('\t')[1].rstrip(),
+                                           id=','.join(alist),
                                            rettype='fasta',
                                            retmode='text')
                     fw.write(handle.read())
+                    fw.flush()
+                    handle.close()
+
             fwlog.write('# Fetched queries: ' + str(query_num) + '\n')
             fwlog.write('#\n')
 
