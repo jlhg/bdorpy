@@ -63,7 +63,7 @@ def main():
     fwlog.flush()
 
     os.system(r"awk '$5 ~ /ref/ { print $0 }' " + ' '.join(args.input_files_blastlist) + '|' +
-              r"sort -k5d,5 -k18g,18 -k22gr,22 -k19gr >" +
+              r"sort -k5d,5 -k18g,18 -k22gr,22 -k19gr,19 -k26gr,26 -k6gr >" +
               args.output.rstrip('/') + '/sort.temp')
 
     fasta = {}
