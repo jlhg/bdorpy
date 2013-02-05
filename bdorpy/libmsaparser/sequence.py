@@ -50,15 +50,18 @@ class Susp:
         self.name = None
         self.space = None
         self.sequence = []
+        self.sequence_html = []
         self.source = None
+        self.pattern = re.compile('(\S+?)(\s+?)(\S+?)\s')
 
     def read(self, line):
-        match = re.match(r'(\S+?)(\s+?)(\S+?)\s', line)
+        match = self.pattern.match(line)
         if self.name is not None and self.name != match.group(1):
             sys.exit("Error! Too many sources in Susp group.")
         self.name = match.group(1)
         self.space = match.group(2)
         self.sequence = self.sequence + list(match.group(3))
+        self.sequence_html = self.sequence_html + list(match.group(3))
         self.space = re.sub('\s', '&nbsp;', self.space)
 
     def get_sequence_length(self):
@@ -67,17 +70,20 @@ class Susp:
     def get_residue(self, position):
         return self.sequence[position]
 
+    def get_residues(self, start_pos, stop_pos):
+        return ''.join(self.sequence[start_pos:stop_pos + 1])
+
     def set_htmltag(self, position, classname):
-        self.sequence[position] = '<span class="' + classname + '">' + self.sequence[position] + '</span>'
+        self.sequence_html[position] = '<span class="' + classname + '">' + self.sequence[position] + '</span>'
 
     def get_html(self):
         yield self.name
         yield self.space
         for i in range(0, CLU_ALIGN_LENGTH_PER_LINE):
-            if not self.sequence:
+            if not self.sequence_html:
                 break
-            yield self.sequence[0]
-            del self.sequence[0]
+            yield self.sequence_html[0]
+            del self.sequence_html[0]
         yield "<br>"
 
     def get_name(self):
@@ -91,7 +97,7 @@ class Susp:
         if self.source is None:
             print(self.name)
             print(source_name)
-            sys.exit("Error! Please check source names. (78)")
+            sys.exit("Error! Please check source names.")
 
     def get_source(self):
         return self.source
@@ -103,31 +109,37 @@ class Res:
         self.name = None
         self.space = None
         self.sequence = []
+        self.sequence_html = []
         self.source = None
+        self.pattern = re.compile('(\S+?)(\s+?)(\S+?)\s')
 
     def read(self, line):
-        match = re.match(r'(\S+?)(\s+?)(\S+?)\s', line)
+        match = self.pattern.match(line)
         if self.name is not None and self.name != match.group(1):
             sys.exit("Error! Too many sources in Res group.")
         self.name = match.group(1)
         self.space = match.group(2)
         self.sequence = self.sequence + list(match.group(3))
+        self.sequence_html = self.sequence_html + list(match.group(3))
         self.space = re.sub('\s', '&nbsp;', self.space)
 
     def get_residue(self, position):
         return self.sequence[position]
 
+    def get_residues(self, start_pos, stop_pos):
+        return ''.join(self.sequence[start_pos:stop_pos + 1])
+
     def set_htmltag(self, position, classname):
-        self.sequence[position] = '<span class="' + classname + '">' + self.sequence[position] + '</span>'
+        self.sequence_html[position] = '<span class="' + classname + '">' + self.sequence[position] + '</span>'
 
     def get_html(self):
         yield self.name
         yield self.space
         for i in range(0, CLU_ALIGN_LENGTH_PER_LINE):
-            if not self.sequence:
+            if not self.sequence_html:
                 break
-            yield self.sequence[0]
-            del self.sequence[0]
+            yield self.sequence_html[0]
+            del self.sequence_html[0]
         yield "<br>"
 
     def get_name(self):
@@ -139,7 +151,7 @@ class Res:
                 self.source = source_name[srcname]
                 break
         if self.source is None:
-            sys.exit("Error! Please check source names. (122)")
+            sys.exit("Error! Please check source names.")
 
     def get_source(self):
         return self.source
@@ -151,31 +163,37 @@ class Rec:
         self.name = None
         self.space = None
         self.sequence = []
+        self.sequence_html = []
         self.source = None
+        self.pattern = re.compile('(\S+?)(\s+?)(\S+?)\s')
 
     def read(self, line):
-        match = re.match(r'(\S+?)(\s+?)(\S+?)\s', line)
+        match = self.pattern.match(line)
         if self.name is not None and self.name != match.group(1):
             sys.exit("Error! Too many sources in Rec group.")
         self.name = match.group(1)
         self.space = match.group(2)
         self.sequence = self.sequence + list(match.group(3))
+        self.sequence_html = self.sequence_html + list(match.group(3))
         self.space = re.sub('\s', '&nbsp;', self.space)
 
     def get_residue(self, position):
         return self.sequence[position]
 
+    def get_residues(self, start_pos, stop_pos):
+        return ''.join(self.sequence[start_pos:stop_pos + 1])
+
     def set_htmltag(self, position, classname):
-        self.sequence[position] = '<span class="' + classname + '">' + self.sequence[position] + '</span>'
+        self.sequence_html[position] = '<span class="' + classname + '">' + self.sequence[position] + '</span>'
 
     def get_html(self):
         yield self.name
         yield self.space
         for i in range(0, CLU_ALIGN_LENGTH_PER_LINE):
-            if not self.sequence:
+            if not self.sequence_html:
                 break
-            yield self.sequence[0]
-            del self.sequence[0]
+            yield self.sequence_html[0]
+            del self.sequence_html[0]
         yield "<br>"
 
     def get_name(self):
@@ -187,7 +205,7 @@ class Rec:
                 self.source = source_name[srcname]
                 break
         if self.source is None:
-            sys.exit("Error! Please check source names. (168)")
+            sys.exit("Error! Please check source names.")
 
     def get_source(self):
         return self.source
@@ -206,12 +224,12 @@ class Star:
         self.inalign = self.inalign + line[-CLU_ALIGN_LENGTH_PER_LINE:]
         self.line.append(re.sub(r'\s', '&nbsp;', line))
 
-    def get_star_percentage(self, pos_tuple):
+    def get_starnum(self, start, end):
         star_num = 0
-        for i in range(pos_tuple[0], pos_tuple[1]):
+        for i in range(start, end + 1):
             if self.inalign[i] == '*':
                 star_num += 1
-        return star_num / (pos_tuple[1] - pos_tuple[0] + 1)
+        return star_num
 
     def set_htmltag(self):
         pass
@@ -223,35 +241,46 @@ class Star:
         yield "&nbsp;" + str(self.rsdnum) + "<br>"
 
     def neighbor_star_check(self, position, star_check_number):
+        if position < star_check_number or position + star_check_number > len(self.inalign) - 1:
+            """Mutation position is on sides, return False."""
+            return False
+
+        # if position < star_check_number:
+        #     """Only check right side"""
+        #     for i in range(position + 1, position + 1 + star_check_number):
+        #         if self.inalign[i] == '*':
+        #             star_num += 1
+        #     if star_num >= star_check_number * 0.8:
+        #         return True
+        #     else:
+        #         return False
+
+        # if position + star_check_number > len(self.inalign) - 1:
+        #     """Only check left side"""
+        #     for i in range(position - star_check_number, position):
+        #         if self.inalign[i] == '*':
+        #             star_num += 1
+        #     if star_num >= star_check_number * 0.8:
+        #         return True
+        #     else:
+        #         return False
+
+        # Check two sides
         star_num = 0
-        if position < star_check_number:
-            """Only check right side"""
-            for i in range(position + 1, position + 1 + star_check_number):
-                if self.inalign[i] == '*':
-                    star_num += 1
-            if star_num >= star_check_number * 0.8:
-                return True
-            else:
-                return False
-        if position + star_check_number > len(self.inalign) - 1:
-            """Only check left side"""
-            for i in range(position - star_check_number, position):
-                if self.inalign[i] == '*':
-                    star_num += 1
-            if star_num >= star_check_number * 0.8:
-                return True
-            else:
-                return False
-        """Check two sides"""
+
         for i in range(position + 1, position + 1 + star_check_number):
             if self.inalign[i] == '*':
                 star_num += 1
+
         if star_num < star_check_number * 0.8:
             return False
+
         star_num = 0
+
         for i in range(position - star_check_number, position):
             if self.inalign[i] == '*':
                 star_num += 1
+
         if star_num >= star_check_number * 0.8:
             return True
         else:

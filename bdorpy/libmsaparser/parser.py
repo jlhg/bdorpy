@@ -10,34 +10,35 @@
 
 import re
 import sys
-
 from libmsaparser import sequence
 from libmsaparser import converter
 
 
-def writeheader(output_directory, output_files):
-    fw_main = open(output_directory + '/' + output_files['main'], 'a')
-    fw_simple = open(output_directory + '/' + output_files['simple'], 'a')
-    fw_main.write("msa_method\t" + "hit_name\t" +
-                  "aln_hspno\t" + "query_names\t" +
-                  "clu_html\t" + "res_like_susp\t" +
-                  "rec_like_susp\t" + "rec_like_res\t" +
-                  "hit_src_name\t" + "query_src_names\t" +
-                  "block_positions\n")
-    fw_main.flush()
-    fw_simple.write("msa_method\t" + "hit_name\t" +
-                    "aln_hspno\t" + "query_names\t" +
-                    "res_like_susp\t" + "rec_like_susp\t" +
-                    "rec_like_res\t" + "hit_src_name\t" +
-                    "query_src_names\t" + "block_positions\n")
-    fw_simple.flush()
-    fw_main.close()
-    fw_simple.close()
+def writeheader(handle):
+    handle.write('\t'.join(['msa_method',
+                            'hit_name',
+                            'query_names',
+                            'res_eq_susp_num',
+                            'rec_eq_susp_num',
+                            'rec_eq_res_num',
+                            'res_eq_susp_profile',
+                            'rec_eq_susp_profile',
+                            'rec_eq_res_profile',
+                            'block_positions']) +
+                 '\n')
+
+    handle.flush()
 
 
 class Parser:
 
-    def __init__(self, root, filename, susplist, reslist, reclist, reference):
+    def __init__(self,
+                 root,
+                 filename,
+                 susplist,
+                 reslist,
+                 reclist,
+                 reference):
         self.order = []
         self.clutitle = sequence.Clutitle()
         self.space = sequence.Space()
@@ -47,18 +48,20 @@ class Parser:
         self.star = sequence.Star()
         self.groups = [self.susp, self.res, self.rec]
         self.hit_src_name = reference
-        match = re.match(r'(.+)-(\d+).clu', filename)
+        match = re.match(r'(.+).clu', filename)
         if match is None:
             sys.exit("Error! The filename '" + filename + "' is not correct.")
         else:
             self.hit_name = match.group(1)
-            self.aln_hspno = match.group(2)
 
         for line in open(root + "/" + filename, 'r'):
-            if re.search(r'CLUSTAL O', line):
+            if re.search(r'CLUSTAL', line):
                 self.clutitle.read(line)
                 self.order.append(self.clutitle)
-                self.msa_method = "CLUSTALO"
+                if re.search(r'MAFFT', line):
+                    self.msa_method = 'MAFFT'
+                else:
+                    self.msa_method = 'CLUSTAL'
             elif re.search(r'^\n', line):
                 self.space.read(line)
                 self.order.append(self.space)
@@ -85,10 +88,18 @@ class Parser:
                 self.block.append(i)
         self.block = converter.group_continuous_number(self.block)
 
-    def analyze(self, block_starpct, block_length, source_name, formats, star_check_number):
-        self.res_eq_susp = 0
-        self.rec_eq_susp = 0
-        self.rec_eq_res = 0
+    def analyze(self,
+                block_starpct,
+                block_length,
+                source_name,
+                formats,
+                star_check_number):
+        self.res_eq_susp_num = 0
+        self.rec_eq_susp_num = 0
+        self.rec_eq_res_num = 0
+        self.res_eq_susp_profile = []
+        self.rec_eq_susp_profile = []
+        self.rec_eq_res_profile = []
         self.clutitle.set_htmltag(formats['class_clutitle'])
         self.space.set_htmltag()
         self.star.set_htmltag()
@@ -102,57 +113,89 @@ class Parser:
         self.block_poslist = []
 
         for i in self.block:
-            if (block_length > i[1] - i[0] + 1):
+            real_block_length = i[1] - i[0] + 1
+            real_starpct = self.star.get_starnum(i[0], i[1]) / real_block_length
+
+            if block_length > real_block_length:
                 continue
-            if (block_starpct > self.star.get_star_percentage(i)):
+
+            if block_starpct > real_starpct:
                 continue
-            self.block_poslist.append(str(i[0]) + ".." + str(i[1]) +
-                                      " L=" + str(i[1] - i[0] + 1) +
-                                      " SP=" + str(round(self.star.get_star_percentage(i), 2)))
-            for j in range(i[0], i[1]):
+
+            self.block_poslist.append(str(i[0]) + '..' + str(i[1]) +
+                                      ' L=' + str(i[1] - i[0] + 1) +
+                                      ' SP=' + str(round(real_starpct, 2)))
+
+            for j in range(i[0], i[1] + 1):
                 rsd_susp = self.susp.get_residue(j)
                 rsd_res = self.res.get_residue(j)
                 rsd_rec = self.rec.get_residue(j)
+
                 if rsd_susp == 'X' or rsd_res == 'X' or rsd_rec == 'X':
                     continue
+
                 if rsd_res == rsd_susp and rsd_res != rsd_rec:
                     if self.star.neighbor_star_check(j, star_check_number):
-                        self.res_eq_susp += 1
+                        self.res_eq_susp_num += 1
+                        self.res_eq_susp_profile.append(self.res.get_residues(j - 2, j + 2) +
+                                                        ':' +
+                                                        self.rec.get_residues(j - 2, j + 2))
                         for g in self.groups:
                             g.set_htmltag(j, formats['class_res_eq_susp'])
                     continue
+
                 if rsd_rec == rsd_susp and rsd_rec != rsd_res:
                     if self.star.neighbor_star_check(j, star_check_number):
-                        self.rec_eq_susp += 1
+                        self.rec_eq_susp_num += 1
+                        self.rec_eq_susp_profile.append(self.rec.get_residues(j - 2, j + 2) +
+                                                        ':' +
+                                                        self.res.get_residues(j - 2, j + 2))
                         for g in self.groups:
                             g.set_htmltag(j, formats['class_rec_eq_susp'])
                     continue
+
                 if rsd_rec == rsd_res and rsd_rec != rsd_susp:
                     if self.star.neighbor_star_check(j, star_check_number):
-                        self.rec_eq_res += 1
+                        self.rec_eq_res_num += 1
+                        self.rec_eq_res_profile.append(self.rec.get_residues(j - 2, j + 2) +
+                                                        ':' +
+                                                        self.susp.get_residues(j - 2, j + 2))
                         for g in self.groups:
                             g.set_htmltag(j, formats['class_rec_eq_res'])
                     continue
 
     def get_data(self):
-        main = []
-        main.append(self.msa_method + "\t" + self.hit_name + "\t" +
-                    self.aln_hspno + "\t" + '|'.join(self.query_names) + "\t")
+        if not self.res_eq_susp_profile:
+            res_eq_susp_profile = ['NA']
+        else:
+            res_eq_susp_profile = self.res_eq_susp_profile
+        if not self.rec_eq_susp_profile:
+            rec_eq_susp_profile = ['NA']
+        else:
+            rec_eq_susp_profile = self.rec_eq_susp_profile
+        if not self.rec_eq_res_profile:
+            rec_eq_res_profile = ['NA']
+        else:
+            rec_eq_res_profile = self.rec_eq_res_profile
+        if not self.block_poslist:
+            block_poslist = ['NA']
+        else:
+            block_poslist = self.block_poslist
+        main = ('\t'.join([self.msa_method,
+                           self.hit_name,
+                           ','.join(self.query_names),
+                           str(self.res_eq_susp_num),
+                           str(self.rec_eq_susp_num),
+                           str(self.rec_eq_res_num),
+                           ','.join(res_eq_susp_profile),
+                           ','.join(rec_eq_susp_profile),
+                           ','.join(rec_eq_res_profile),
+                           ','.join(block_poslist)]) +
+                '\n')
 
+        html = []
         for i in self.order:
             for s in i.get_html():
-                main.append(s)
+                html.append(s)
 
-        main.append("\t")
-        main.append(str(self.res_eq_susp) + "\t" + str(self.rec_eq_susp) + "\t" +
-                    str(self.rec_eq_res) + "\t" + self.hit_src_name + "\t" +
-                    '|'.join(self.query_src_names) + "\t" + ', '.join(self.block_poslist) + "\n")
-
-        simple = []
-        simple.append(self.msa_method + "\t" + self.hit_name + "\t" +
-                      self.aln_hspno + "\t" + '|'.join(self.query_names) + "\t" +
-                      str(self.res_eq_susp) + "\t" + str(self.rec_eq_susp) + "\t" +
-                      str(self.rec_eq_res) + "\t" + self.hit_src_name + "\t" +
-                      '|'.join(self.query_src_names) + "\t" + ', '.join(self.block_poslist) + "\n")
-
-        return {'main': main, 'simple': simple}
+        return {'main': main, 'html_fname': self.hit_name, 'html': html}

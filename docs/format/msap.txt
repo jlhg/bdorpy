@@ -1,0 +1,15 @@
+# msap - a tab-separated lists
+#
+# Updated: 2013.2.3
+
+col_index   title
+0           msa_method
+1           hit_name
+2           query_names
+3           res_eq_susp_num
+4           rec_eq_susp_num
+5           rec_eq_res_num
+6           res_eq_susp_profile
+7           rec_eq_susp_profile
+8           rec_eq_res_profile
+9           block_positions
