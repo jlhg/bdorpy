@@ -7,28 +7,38 @@
 # http://opensource.org/licenses/MIT
 #
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
-# Version: 0.1
+# Version: 1.0
 # Created: 2013.1.31
 #
-# Required:
+# Requirement:
 # * Biopython: http://biopython.org
 #
-# Usage: [options]
+# Usage: -b <blastlist> -f <fasta> [options]
 #
 # Options:
-# -b, --blastlist        STR: blastlist file
-# -f, --fasta            STR: fasta file
+# -b, --blastlist        STR: blastlist files (required)
+# -f, --fasta            STR: fasta files (required)
 # -o, --output-directory STR: output directory. If this option is not specified, the script will generate
 #                             one with unique identifier at current directory.
-# -p, --process          NUM: number of threads (CPUs) to use
+# -p, --process          NUM: number of threads (CPUs) to use (default: 1)
 #
-# This script is written for MSA
+# File formats:
+# <blastlist>: blastlist
+# <fasta>: fasta
+#
+# -b and -f options support multiple input files and Unix style pathname pattern.
+# For example:
+# * commonfa -b <a.blastlist> <b.blastlist> ... -b <a.fa> <b.fa> ..
+# * commonfa -b <a*.blastlist> -b <a*.fa>
+#
+# This script is written for MSA.
 
-import sys
 import os
-import argparse
 import re
+import sys
+import argparse
 import ConfigParser
+from subprocess import Popen, PIPE
 from multiprocessing import Pool
 from Bio import SeqIO
 from fhandle import name, logmsg
@@ -39,9 +49,9 @@ def main():
 
     parser = argparse.ArgumentParser(description='commonfa - Generate fasta files of sequences with common hit')
     parser.add_argument('-b', '--blastlist', dest='input_files_blastlist', nargs='*', required=True,
-                        help='blastlist file(s)')
+                        help='blastlist files (required)')
     parser.add_argument('-f', '--fasta', nargs='*', dest='input_files_fasta', required=True,
-                        help='fasta file(s)')
+                        help='fasta files (required)')
     parser.add_argument('-o', '--output-directory', dest='output', default='commonfa_out_' + name.genid(),
                         help='output directory. If this option is not specified, the script will generate '
                         'one with unique identifier at current directory.')
@@ -62,9 +72,14 @@ def main():
 
     fwlog.flush()
 
-    os.system(r"awk '$5 ~ /ref/ { print $0 }' " + ' '.join(args.input_files_blastlist) + '|' +
-              r"sort -k5d,5 -k18g,18 -k22gr,22 -k19gr,19 -k26gr,26 -k6gr >" +
-              args.output.rstrip('/') + '/sort.temp')
+    awk_cmd = "awk -F'\t' '$5 ~ /ref/ { print $0 }' " + ' '.join(args.input_files_blastlist)
+    sort_cmd = "sort -t$'\t' -k5d,5 -k18g,18 -k22gr,22 -k19gr,19 -k26gr,26 -k6gr"
+
+    fwsort = open(args.output.rstrip('/') + '/sort.temp', 'w')
+    awk_proc = Popen(awk_cmd, stdout=PIPE, executable='/bin/bash', shell=True)
+    sort_proc = Popen(sort_cmd, stdin=awk_proc.stdout, stdout=fwsort, executable='/bin/bash', shell=True)
+    sort_proc.communicate()
+    fwsort.close()
 
     fasta = {}
 
