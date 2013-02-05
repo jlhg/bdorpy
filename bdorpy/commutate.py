@@ -7,7 +7,7 @@
 # http://opensource.org/licenses/MIT
 #
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
-# Version: 0.1
+# Version: 0.2
 # Created: 2012.2.5
 #
 # Usage: commutate <input.msap> [options]
@@ -79,8 +79,13 @@ def writefile(output_file, common_mutation_profile):
         fw.write('\n')
 
         for key, value in common_mutation_profile.items():
+            if value == '-':
+                profile_num = 0
+            else:
+                profile_num = len(value)
+
             fw.write('\t'.join([key,
-                                str(len(value)),
+                                str(profile_num),
                                 ','.join(value)]))
             fw.write('\n')
 
