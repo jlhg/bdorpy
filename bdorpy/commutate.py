@@ -7,7 +7,7 @@
 # http://opensource.org/licenses/MIT
 #
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
-# Version: 0.2
+# Version: 0.3
 # Created: 2012.2.5
 #
 # Usage: commutate <input.msap> [options]
@@ -21,6 +21,7 @@
 # * commutate <a.msap> <b.msap> ...
 # * commutate <*.msap> ...
 
+import os
 import sys
 import argparse
 from fhandle import name
@@ -101,6 +102,9 @@ def main():
     args = parser.parse_args()
 
     args.output = args.output.rstrip('/')
+
+    if not os.path.exists(args.output):
+        os.makedirs(args.output)
 
     source = []
     source_res_eq_susp = {}
