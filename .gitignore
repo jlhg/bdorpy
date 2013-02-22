@@ -1,6 +1,5 @@
 /.ropeproject
 /tests
-/bdorpy/libmsaparser/__pycache__
-/bdorpy/libmsaparser/*.pyc
-/bdorpy/fhandle/__pycache__
-/bdorpy/fhandle/*.pyc
+__pycache__
+*.pyc
+\#*\#
