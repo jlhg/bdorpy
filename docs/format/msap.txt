@@ -9,7 +9,10 @@ col_index   title
 3           res_eq_susp_num
 4           rec_eq_susp_num
 5           rec_eq_res_num
-6           res_eq_susp_profile
-7           rec_eq_susp_profile
-8           rec_eq_res_profile
-9           block_positions
+6           res_eq_susp_mutate_pos
+7           rec_eq_susp_mutate_pos
+8           rec_eq_res_mutate_pos
+9           res_eq_susp_profile
+10          rec_eq_susp_profile
+11          rec_eq_res_profile
+12          block_positions

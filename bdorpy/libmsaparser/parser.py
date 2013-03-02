@@ -21,6 +21,9 @@ def writeheader(handle):
                             'res_eq_susp_num',
                             'rec_eq_susp_num',
                             'rec_eq_res_num',
+                            'res_eq_susp_mutate_pos',
+                            'rec_eq_susp_mutate_pos',
+                            'rec_eq_res_mutate_pos',
                             'res_eq_susp_profile',
                             'rec_eq_susp_profile',
                             'rec_eq_res_profile',
@@ -42,9 +45,9 @@ class Parser:
         self.order = []
         self.clutitle = sequence.Clutitle()
         self.space = sequence.Space()
-        self.susp = sequence.Susp()
-        self.res = sequence.Res()
-        self.rec = sequence.Rec()
+        self.susp = sequence.Sequence()
+        self.res = sequence.Sequence()
+        self.rec = sequence.Sequence()
         self.star = sequence.Star()
         self.groups = [self.susp, self.res, self.rec]
         self.hit_src_name = reference
@@ -97,6 +100,9 @@ class Parser:
         self.res_eq_susp_num = 0
         self.rec_eq_susp_num = 0
         self.rec_eq_res_num = 0
+        self.res_eq_susp_mutate_poslist = []
+        self.rec_eq_susp_mutate_poslist = []
+        self.rec_eq_res_mutate_poslist = []
         self.res_eq_susp_profile = []
         self.rec_eq_susp_profile = []
         self.rec_eq_res_profile = []
@@ -122,7 +128,7 @@ class Parser:
             if block_starpct > real_starpct:
                 continue
 
-            self.block_poslist.append(str(i[0]) + '..' + str(i[1]) +
+            self.block_poslist.append(str(i[0] + 1) + '..' + str(i[1] + 1) +
                                       ' L=' + str(i[1] - i[0] + 1) +
                                       ' SP=' + str(round(real_starpct, 2)))
 
@@ -140,8 +146,16 @@ class Parser:
                         self.res_eq_susp_profile.append(self.res.get_residues(j - 2, j + 2) +
                                                         ':' +
                                                         self.rec.get_residues(j - 2, j + 2))
+
                         for g in self.groups:
                             g.set_htmltag(j, formats['class_res_eq_susp'])
+
+                        self.res_eq_susp_mutate_poslist.append(str(self.susp.get_raw_position(j)) +
+                                                               '-' +
+                                                               str(self.res.get_raw_position(j)) +
+                                                               '-' +
+                                                               str(self.rec.get_raw_position(j)))
+
                     continue
 
                 if rsd_rec == rsd_susp and rsd_rec != rsd_res:
@@ -150,18 +164,34 @@ class Parser:
                         self.rec_eq_susp_profile.append(self.rec.get_residues(j - 2, j + 2) +
                                                         ':' +
                                                         self.res.get_residues(j - 2, j + 2))
+
                         for g in self.groups:
                             g.set_htmltag(j, formats['class_rec_eq_susp'])
+
+                        self.rec_eq_susp_mutate_poslist.append(str(self.susp.get_raw_position(j)) +
+                                                               '-' +
+                                                               str(self.res.get_raw_position(j)) +
+                                                               '-' +
+                                                               str(self.rec.get_raw_position(j)))
+
                     continue
 
                 if rsd_rec == rsd_res and rsd_rec != rsd_susp:
                     if self.star.neighbor_star_check(j, star_check_number):
                         self.rec_eq_res_num += 1
                         self.rec_eq_res_profile.append(self.rec.get_residues(j - 2, j + 2) +
-                                                        ':' +
-                                                        self.susp.get_residues(j - 2, j + 2))
+                                                       ':' +
+                                                       self.susp.get_residues(j - 2, j + 2))
+
                         for g in self.groups:
                             g.set_htmltag(j, formats['class_rec_eq_res'])
+
+                        self.rec_eq_res_mutate_poslist.append(str(self.susp.get_raw_position(j)) +
+                                                              '-' +
+                                                              str(self.res.get_raw_position(j)) +
+                                                              '-' +
+                                                              str(self.rec.get_raw_position(j)))
+
                     continue
 
     def get_data(self):
@@ -181,12 +211,28 @@ class Parser:
             block_poslist = ['NA']
         else:
             block_poslist = self.block_poslist
+        if not self.res_eq_susp_mutate_poslist:
+            res_eq_susp_mutate_poslist = ['NA']
+        else:
+            res_eq_susp_mutate_poslist = self.res_eq_susp_mutate_poslist
+        if not self.rec_eq_susp_mutate_poslist:
+            rec_eq_susp_mutate_poslist = ['NA']
+        else:
+            rec_eq_susp_mutate_poslist = self.rec_eq_susp_mutate_poslist
+        if not self.rec_eq_res_mutate_poslist:
+            rec_eq_res_mutate_poslist = ['NA']
+        else:
+            rec_eq_res_mutate_poslist = self.rec_eq_res_mutate_poslist
+
         main = ('\t'.join([self.msa_method,
                            self.hit_name,
                            ','.join(self.query_names),
                            str(self.res_eq_susp_num),
                            str(self.rec_eq_susp_num),
                            str(self.rec_eq_res_num),
+                           ','.join(res_eq_susp_mutate_poslist),
+                           ','.join(rec_eq_susp_mutate_poslist),
+                           ','.join(rec_eq_res_mutate_poslist),
                            ','.join(res_eq_susp_profile),
                            ','.join(rec_eq_susp_profile),
                            ','.join(rec_eq_res_profile),

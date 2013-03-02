@@ -7,7 +7,7 @@
 # http://opensource.org/licenses/MIT
 #
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
-# Version: 1.0
+# Version: 2.0
 #
 # Requirement:
 # * Python >= 3.3
@@ -70,7 +70,7 @@ def main():
     # Check version
     if sys.version < '3.3':
         your_version = sys.version.split(' ')[0]
-        print('* Your Python version (%s) is too old! Please upgrade to 3.0+!' % your_version)
+        print('* Your Python version (%s) is too old! Please upgrade to 3.3+!' % your_version)
         sys.exit()
 
     proglog = logmsg.message(prog='msaparser', cmd=' '.join(sys.argv))

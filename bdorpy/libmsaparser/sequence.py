@@ -44,7 +44,7 @@ class Space:
         return self.line
 
 
-class Susp:
+class Sequence:
 
     def __init__(self):
         self.name = None
@@ -102,113 +102,8 @@ class Susp:
     def get_source(self):
         return self.source
 
-
-class Res:
-
-    def __init__(self):
-        self.name = None
-        self.space = None
-        self.sequence = []
-        self.sequence_html = []
-        self.source = None
-        self.pattern = re.compile('(\S+?)(\s+?)(\S+?)\s')
-
-    def read(self, line):
-        match = self.pattern.match(line)
-        if self.name is not None and self.name != match.group(1):
-            sys.exit("Error! Too many sources in Res group.")
-        self.name = match.group(1)
-        self.space = match.group(2)
-        self.sequence = self.sequence + list(match.group(3))
-        self.sequence_html = self.sequence_html + list(match.group(3))
-        self.space = re.sub('\s', '&nbsp;', self.space)
-
-    def get_residue(self, position):
-        return self.sequence[position]
-
-    def get_residues(self, start_pos, stop_pos):
-        return ''.join(self.sequence[start_pos:stop_pos + 1])
-
-    def set_htmltag(self, position, classname):
-        self.sequence_html[position] = '<span class="' + classname + '">' + self.sequence[position] + '</span>'
-
-    def get_html(self):
-        yield self.name
-        yield self.space
-        for i in range(0, CLU_ALIGN_LENGTH_PER_LINE):
-            if not self.sequence_html:
-                break
-            yield self.sequence_html[0]
-            del self.sequence_html[0]
-        yield "<br>"
-
-    def get_name(self):
-        return self.name
-
-    def set_source(self, source_name):
-        for srcname in source_name.keys():
-            if re.search(srcname, self.name):
-                self.source = source_name[srcname]
-                break
-        if self.source is None:
-            sys.exit("Error! Please check source names.")
-
-    def get_source(self):
-        return self.source
-
-
-class Rec:
-
-    def __init__(self):
-        self.name = None
-        self.space = None
-        self.sequence = []
-        self.sequence_html = []
-        self.source = None
-        self.pattern = re.compile('(\S+?)(\s+?)(\S+?)\s')
-
-    def read(self, line):
-        match = self.pattern.match(line)
-        if self.name is not None and self.name != match.group(1):
-            sys.exit("Error! Too many sources in Rec group.")
-        self.name = match.group(1)
-        self.space = match.group(2)
-        self.sequence = self.sequence + list(match.group(3))
-        self.sequence_html = self.sequence_html + list(match.group(3))
-        self.space = re.sub('\s', '&nbsp;', self.space)
-
-    def get_residue(self, position):
-        return self.sequence[position]
-
-    def get_residues(self, start_pos, stop_pos):
-        return ''.join(self.sequence[start_pos:stop_pos + 1])
-
-    def set_htmltag(self, position, classname):
-        self.sequence_html[position] = '<span class="' + classname + '">' + self.sequence[position] + '</span>'
-
-    def get_html(self):
-        yield self.name
-        yield self.space
-        for i in range(0, CLU_ALIGN_LENGTH_PER_LINE):
-            if not self.sequence_html:
-                break
-            yield self.sequence_html[0]
-            del self.sequence_html[0]
-        yield "<br>"
-
-    def get_name(self):
-        return self.name
-
-    def set_source(self, source_name):
-        for srcname in source_name.keys():
-            if re.search(srcname, self.name):
-                self.source = source_name[srcname]
-                break
-        if self.source is None:
-            sys.exit("Error! Please check source names.")
-
-    def get_source(self):
-        return self.source
+    def get_raw_position(self, position):
+        return len(''.join(self.sequence[0:position + 1]).replace('-', ''))
 
 
 class Star:
