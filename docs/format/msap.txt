@@ -1,6 +1,6 @@
 # msap - a tab-separated lists
 #
-# Updated: 2013.2.3
+# Updated: 2013.3.5
 
 col_index   title
 0           msa_method
