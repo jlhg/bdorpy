@@ -7,7 +7,7 @@
 # http://opensource.org/licenses/MIT
 #
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
-# Version: 0.3
+# Version: 1.3
 # Created: 2012.2.5
 #
 # Usage: commutate <input.msap> [options]
@@ -123,11 +123,11 @@ def main():
                     continue
                 data = line.rstrip().split('\t')
                 if int(data[3]) > 0:
-                    source_res_eq_susp[afile].update({data[1]: set(data[6].split(','))})
+                    source_res_eq_susp[afile].update({data[1]: set(data[9].split(','))})
                 if int(data[4]) > 0:
-                    source_rec_eq_susp[afile].update({data[1]: set(data[7].split(','))})
+                    source_rec_eq_susp[afile].update({data[1]: set(data[10].split(','))})
                 if int(data[5]) > 0:
-                    source_rec_eq_res[afile].update({data[1]: set(data[8].split(','))})
+                    source_rec_eq_res[afile].update({data[1]: set(data[11].split(','))})
 
     common_hitname_res_eq_susp = get_common_hitname(source_res_eq_susp)
     common_mutation_profile_res_eq_susp = get_common_mutate(source_res_eq_susp, common_hitname_res_eq_susp)
