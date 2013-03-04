@@ -7,7 +7,7 @@
 # http://opensource.org/licenses/MIT
 #
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
-# Version: 2.0
+# Version: 2.1
 #
 # Requirement:
 # * Python >= 3.3

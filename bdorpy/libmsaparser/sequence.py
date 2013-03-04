@@ -11,8 +11,6 @@
 import re
 import sys
 
-CLU_ALIGN_LENGTH_PER_LINE = 60
-
 
 class Clutitle:
 
@@ -63,6 +61,7 @@ class Sequence:
         self.sequence = self.sequence + list(match.group(3))
         self.sequence_html = self.sequence_html + list(match.group(3))
         self.space = re.sub('\s', '&nbsp;', self.space)
+        self.clulen = len(match.group(3))
 
     def get_sequence_length(self):
         return len(self.sequence)
@@ -79,7 +78,7 @@ class Sequence:
     def get_html(self):
         yield self.name
         yield self.space
-        for i in range(0, CLU_ALIGN_LENGTH_PER_LINE):
+        for i in range(0, self.clulen):
             if not self.sequence_html:
                 break
             yield self.sequence_html[0]
@@ -113,11 +112,13 @@ class Star:
         self.inalign = []
         self.rsdnum = 0
         self.inalign = ''
+        self.clulens = []
 
-    def read(self, line):
+    def read(self, line, clulen):
         line = line.rstrip('\n')
-        self.inalign = self.inalign + line[-CLU_ALIGN_LENGTH_PER_LINE:]
+        self.inalign = self.inalign + line[-clulen:]
         self.line.append(re.sub(r'\s', '&nbsp;', line))
+        self.clulens.append(clulen)
 
     def get_starnum(self, start, end):
         star_num = 0
@@ -130,7 +131,7 @@ class Star:
         pass
 
     def get_html(self):
-        self.rsdnum += CLU_ALIGN_LENGTH_PER_LINE
+        self.rsdnum += self.clulens.pop(0)
         yield self.line[0]
         del self.line[0]
         yield "&nbsp;" + str(self.rsdnum) + "<br>"

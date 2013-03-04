@@ -78,7 +78,7 @@ class Parser:
                 self.rec.read(line)
                 self.order.append(self.rec)
             elif re.search(r'^\s', line):
-                self.star.read(line)
+                self.star.read(line, self.susp.clulen)
                 self.order.append(self.star)
             else:
                 sys.exit('Error! please check groups.')
