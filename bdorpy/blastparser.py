@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.7
 #
 # blastparser - Parse the blast output file
 #
@@ -7,7 +7,7 @@
 # http://opensource.org/licenses/MIT
 #
 # Author: Jian-Long Huang (jianlong@ntu.edu.tw)
-# Version: 2.3
+# Version: 2.4
 # Created: 2013.1.22
 #
 # Required :
@@ -44,12 +44,37 @@
 from __future__ import division
 import sys
 import argparse
+import string
+import random
+import time
+import datetime
 from Bio.Blast import NCBIXML
-from fhandle import name, logmsg
+
+
+class message:
+    def __init__(self, prog=None, cmd=None):
+        self.prog = prog
+        self.cmd = cmd
+        self.stime = time.time()
+        self.asctime = time.asctime()
+
+    def start_message(self):
+        yield '# This output was generated with ' + self.prog + '.\n'
+        yield '# Command: ' + self.cmd + '\n'
+        yield '# Starting time: ' + self.asctime + '\n'
+
+    def end_message(self):
+        yield '# Successfully executed.' + '\n'
+        yield '# Elapsed time: ' + str(datetime.timedelta(seconds=round(time.time() - self.stime))) + '\n'
+
+
+def genid(size=6, chars=string.ascii_uppercase + string.digits):
+    random.seed()
+    return ''.join(random.choice(chars) for i in range(size))
 
 
 def main():
-    proglog = logmsg.message(prog='blastparser', cmd=' '.join(sys.argv))
+    proglog = message(prog='blastparser', cmd=' '.join(sys.argv))
 
     parser = argparse.ArgumentParser(description='blastparser - Parse the blast output file')
     parser.add_argument('input_file')
@@ -77,7 +102,7 @@ def main():
         args.aln_rank = 1
 
     if args.output_file is None:
-        args.output_file = args.input_file + '_out_' + name.genid() + '.blastlist'
+        args.output_file = args.input_file + '_out_' + genid() + '.blastlist'
 
     with open(args.input_file, 'r') as result_handle, open(args.output_file, 'w') as fw:
         for i in proglog.start_message():
